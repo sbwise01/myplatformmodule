@@ -40,8 +40,29 @@ module "vpc" {
   tags = local.tags
 }
 
+data "aws_eks_cluster" "eks" {
+  name = module.eks.cluster_id
+}
+
+data "aws_eks_cluster_auth" "eks" {
+  name = module.eks.cluster_id
+}
+
+provider "kubernetes" {
+  alias                  = "eks"
+  host                   = data.aws_eks_cluster.eks.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority.0.data)
+  token                  = data.aws_eks_cluster_auth.eks.token
+  load_config_file       = false
+  version                = "1.11.1"
+}
+
 module "eks" {
   source = "git@github.com:terraform-aws-modules/terraform-aws-eks.git?ref=v9.0.0"
+
+  providers = {
+    kubernetes = kubernetes.eks
+  }
 
   manage_aws_auth             = true
   cluster_name                = local.platform_name
