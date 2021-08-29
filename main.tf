@@ -56,7 +56,7 @@ module "eks" {
   cluster_name                = local.platform_name
   subnets                     = module.vpc.private_subnets
   vpc_id                      = module.vpc.vpc_id
-  cluster_version             = "1.18"
+  cluster_version             = "1.19"
   map_roles                   = var.map_roles
   workers_additional_policies = var.workers_additional_policies
 
